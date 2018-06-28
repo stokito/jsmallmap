@@ -47,7 +47,7 @@ And you are partially right: we do have gibibytes of RAM but we have only about 
     L3 Cache:                      6144K
 
 To understand how this is very important see [Latency Numbers Every Programmer Should Know](https://gist.github.com/jboner/2841832).
-Today enterprise applications contains thouthands of instances of hash map and it becomes a problem because it takes more time to collect a garbage. 
+Today enterprise applications contains thousands of instances of hash map and it becomes a problem because it takes more time to collect a garbage. 
 So a main idea is to make so small map so it can fit into CPU cache and all it's entries are tied together to be prefetched.
 I expect that this can be especially useful in conjunction with [compact objects](http://objectlayout.github.io/ObjectLayout/) that are still not added to JDK :(
 
@@ -79,7 +79,7 @@ I made a synthetic test to roughly estimate allocation of 2000000 maps in **old 
 
 ![Screenshot of VisualVM for SmallMap](smallmap.png "Screenshot of VisualVM for SmallMap")
 
-Simple map consumed 4 less memory and worked 16 times fast. And when it was 4000000 HashMap test just died with OOM.
+Simple map consumed 4 less memory and worked 16 times fast. And when I tried 4000000 entries HashMap test just died with OOM.
 To reproduce it run Main class with -Xms2G -Xmx2G vm options.
 
 Looks impressive but don't trust this results it doesn't count a lot of things. 
@@ -347,9 +347,9 @@ assert usernames.val2 == "user";
 assert usernames.val3 == "guest"; 
 // use as set: duplicated removed on creation 
 Set<String> goods = Vals.setOf("beer", "vodka", "beer"));
-assert usernames.val1 == "beer"; 
-assert usernames.val2 == "vodka"; 
-assert usernames.val3 == null;
+assert goods.val1 == "beer"; 
+assert goods.val2 == "vodka"; 
+assert goods.val3 == null;
 // try to add duplicate
 goods.add("beer");
 assert goods.size() == 2; // still no dups

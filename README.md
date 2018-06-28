@@ -1,6 +1,6 @@
 # jsmallmap - POC of simplest as possible Java Map
 Proof of Concept (POC, experiment) of implementing of fastest Map class for small amount of entries.
-You can call it SmallMap or TupleMap or Vals (see bellow why).
+You can call it "SimpleMap" or "SmallMap" or "TupleMap" or "Vals" (see bellow why).
 
 Java's standard `HashMap` is just great: it is fast and memory efficient.
 It's so smart that on big elements number it internally switches to `TreeMap`. 
@@ -70,10 +70,14 @@ I made a synthetic test to roughly estimate allocation of 2000000 maps in **old 
     hash map
     Spent time: 3249.609999ms
     Consumed mem: 503_633.734375kb
+
+![Screenshot of VisualVM for HashMap](hashmap.png "Screenshot of VisualVM for HashMap")
     
     simple map
     Spent time: 206.163396ms
     Consumed mem: 125_952.5078125kb
+
+![Screenshot of VisualVM for SmallMap](smallmap.png "Screenshot of VisualVM for SmallMap")
 
 Simple map consumed 4 less memory and worked 16 times fast. And when it was 4000000 HashMap test just died with OOM.
 To reproduce it run Main class with -Xms2G -Xmx2G vm options.

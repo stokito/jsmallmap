@@ -57,9 +57,10 @@ Here is some trade-off which method should be fast and which can be slow. Since 
 2. `putAll()` and copy constructor: current implementation can be faster
 3. iteration by entry set: current implementation is dramatically slow.
 4. `toString()` but current implementation is too slow.
-5. `size()` and `isEmpty()` current implementation is fastest as possible.
-6. `remove()` is fast enough and `clean()` makes immediately (just set size = 0) but can cause memory leaks because it don't nulls fields and references are alive.
-7. get keys set and values list: current implementation is too slow and returns inline class (can cause memory leak). Also I think to return just usual ArrayList.
+5. `equals()` and `hashCode()`
+6. `size()` and `isEmpty()` current implementation is fastest as possible.
+7. `remove()` is fast enough and `clean()` makes immediately (just set size = 0) but can cause memory leaks because it don't nulls fields and references are alive.
+8. get keys set and values list: current implementation is too slow and returns inline class (can cause memory leak). Also I think to return just usual ArrayList.
 
 # Benchmark result
 It's hard to benchmark SimpleMap because it's overhead is too small to measure. Also it is hard to compare it with HashMap.
@@ -74,8 +75,8 @@ I made a synthetic test to roughly estimate allocation of 2000000 maps in **old 
 ![Screenshot of VisualVM for HashMap](hashmap.png "Screenshot of VisualVM for HashMap")
     
     simple map
-    Spent time: 206.163396ms
-    Consumed mem: 125_952.5078125kb
+    Spent time: 119.958241ms
+    Consumed mem: 115_456.5703125kb
 
 ![Screenshot of VisualVM for SmallMap](smallmap.png "Screenshot of VisualVM for SmallMap")
 
@@ -90,215 +91,25 @@ So here is a [JMH](http://openjdk.java.net/projects/code-tools/jmh/) benchmark. 
 
 Example on my machine:
 ```
-$ java -jar target/benchmarks.jar -wi 1 -wf 1  -tu ms -i 1 -foe true -gc true
-# JMH version: 1.21
-# VM version: JDK 1.8.0_172, OpenJDK 64-Bit Server VM, 25.172-b01
-# VM invoker: /usr/lib/jvm/zulu-8-amd64/jre/bin/java
-# VM options: <none>
-# Warmup: 1 iterations, 10 s each
-# Measurement: 1 iterations, 10 s each
-# Timeout: 10 min per iteration
-# Threads: 1 thread, will synchronize iterations
-# Benchmark mode: Throughput, ops/time
-# Benchmark: com.github.stokito.jsmallmap.MapGetBenchmarkHashMap.testGetExistingKey
+$ java -jar target/benchmarks.jar -wi 1 -wf 1 -tu ms -i 1 -foe true -gc true
 
-# Run progress: 0.00% complete, ETA 00:08:00
-# Warmup Fork: 1 of 1
-# Warmup Iteration   1: 93048.337 ops/ms
-Iteration   1: 95865.900 ops/ms
-
-# Run progress: 4.17% complete, ETA 00:08:18
-# Fork: 1 of 5
-# Warmup Iteration   1: 101128.778 ops/ms
-Iteration   1: 95751.945 ops/ms
-
-# Run progress: 8.33% complete, ETA 00:07:56
-# Fork: 2 of 5
-# Warmup Iteration   1: 101414.455 ops/ms
-Iteration   1: 97438.395 ops/ms
-
-# Run progress: 12.50% complete, ETA 00:07:33
-# Fork: 3 of 5
-# Warmup Iteration   1: 100620.146 ops/ms
-Iteration   1: 96121.147 ops/ms
-
-# Run progress: 16.67% complete, ETA 00:07:12
-# Fork: 4 of 5
-# Warmup Iteration   1: 101047.375 ops/ms
-Iteration   1: 95453.143 ops/ms
-
-# Run progress: 20.83% complete, ETA 00:06:50
-# Fork: 5 of 5
-# Warmup Iteration   1: 92704.572 ops/ms
-Iteration   1: 97963.531 ops/ms
-
-
-Result "com.github.stokito.jsmallmap.MapGetBenchmarkHashMap.testGetExistingKey":
-  96545.632 ±(99.9%) 4223.053 ops/ms [Average]
-  (min, avg, max) = (95453.143, 96545.632, 97963.531), stdev = 1096.714
-  CI (99.9%): [92322.579, 100768.685] (assumes normal distribution)
-
-
-# JMH version: 1.21
-# VM version: JDK 1.8.0_172, OpenJDK 64-Bit Server VM, 25.172-b01
-# VM invoker: /usr/lib/jvm/zulu-8-amd64/jre/bin/java
-# VM options: <none>
-# Warmup: 1 iterations, 10 s each
-# Measurement: 1 iterations, 10 s each
-# Timeout: 10 min per iteration
-# Threads: 1 thread, will synchronize iterations
-# Benchmark mode: Throughput, ops/time
-# Benchmark: com.github.stokito.jsmallmap.MapGetBenchmarkSmallMap.testGetExistingKey
-
-# Run progress: 25.00% complete, ETA 00:06:28
-# Warmup Fork: 1 of 1
-# Warmup Iteration   1: 87076.730 ops/ms
-Iteration   1: 102284.825 ops/ms
-
-# Run progress: 29.17% complete, ETA 00:06:07
-# Fork: 1 of 5
-# Warmup Iteration   1: 103375.736 ops/ms
-Iteration   1: 102057.327 ops/ms
-
-# Run progress: 33.33% complete, ETA 00:05:45
-# Fork: 2 of 5
-# Warmup Iteration   1: 103539.351 ops/ms
-Iteration   1: 101001.101 ops/ms
-
-# Run progress: 37.50% complete, ETA 00:05:23
-# Fork: 3 of 5
-# Warmup Iteration   1: 103124.491 ops/ms
-Iteration   1: 102739.695 ops/ms
-
-# Run progress: 41.67% complete, ETA 00:05:02
-# Fork: 4 of 5
-# Warmup Iteration   1: 104078.998 ops/ms
-Iteration   1: 103313.823 ops/ms
-
-# Run progress: 45.83% complete, ETA 00:04:40
-# Fork: 5 of 5
-# Warmup Iteration   1: 104092.804 ops/ms
-Iteration   1: 102876.948 ops/ms
-
-
-Result "com.github.stokito.jsmallmap.MapGetBenchmarkSmallMap.testGetExistingKey":
-  102397.779 ±(99.9%) 3472.132 ops/ms [Average]
-  (min, avg, max) = (101001.101, 102397.779, 103313.823), stdev = 901.702
-  CI (99.9%): [98925.647, 105869.911] (assumes normal distribution)
-
-
-# JMH version: 1.21
-# VM version: JDK 1.8.0_172, OpenJDK 64-Bit Server VM, 25.172-b01
-# VM invoker: /usr/lib/jvm/zulu-8-amd64/jre/bin/java
-# VM options: <none>
-# Warmup: 1 iterations, 10 s each
-# Measurement: 1 iterations, 10 s each
-# Timeout: 10 min per iteration
-# Threads: 1 thread, will synchronize iterations
-# Benchmark mode: Throughput, ops/time
-# Benchmark: com.github.stokito.jsmallmap.MapPutBenchmarkHashMap.testGetExistingKey
-
-# Run progress: 50.00% complete, ETA 00:04:19
-# Warmup Fork: 1 of 1
-# Warmup Iteration   1: 45491.887 ops/ms
-Iteration   1: 46182.367 ops/ms
-
-# Run progress: 54.17% complete, ETA 00:03:57
-# Fork: 1 of 5
-# Warmup Iteration   1: 44754.447 ops/ms
-Iteration   1: 47338.460 ops/ms
-
-# Run progress: 58.33% complete, ETA 00:03:35
-# Fork: 2 of 5
-# Warmup Iteration   1: 46154.465 ops/ms
-Iteration   1: 47402.071 ops/ms
-
-# Run progress: 62.50% complete, ETA 00:03:14
-# Fork: 3 of 5
-# Warmup Iteration   1: 44115.687 ops/ms
-Iteration   1: 47156.044 ops/ms
-
-# Run progress: 66.67% complete, ETA 00:02:52
-# Fork: 4 of 5
-# Warmup Iteration   1: 46325.751 ops/ms
-Iteration   1: 46930.896 ops/ms
-
-# Run progress: 70.83% complete, ETA 00:02:31
-# Fork: 5 of 5
-# Warmup Iteration   1: 46964.208 ops/ms
-Iteration   1: 47271.465 ops/ms
-
-
-Result "com.github.stokito.jsmallmap.MapPutBenchmarkHashMap.testGetExistingKey":
-  47219.787 ±(99.9%) 713.935 ops/ms [Average]
-  (min, avg, max) = (46930.896, 47219.787, 47402.071), stdev = 185.407
-  CI (99.9%): [46505.852, 47933.722] (assumes normal distribution)
-
-
-# JMH version: 1.21
-# VM version: JDK 1.8.0_172, OpenJDK 64-Bit Server VM, 25.172-b01
-# VM invoker: /usr/lib/jvm/zulu-8-amd64/jre/bin/java
-# VM options: <none>
-# Warmup: 1 iterations, 10 s each
-# Measurement: 1 iterations, 10 s each
-# Timeout: 10 min per iteration
-# Threads: 1 thread, will synchronize iterations
-# Benchmark mode: Throughput, ops/time
-# Benchmark: com.github.stokito.jsmallmap.MapPutBenchmarkSmallMap.testGetExistingKey
-
-# Run progress: 75.00% complete, ETA 00:02:09
-# Warmup Fork: 1 of 1
-# Warmup Iteration   1: 92842.665 ops/ms
-Iteration   1: 90950.677 ops/ms
-
-# Run progress: 79.17% complete, ETA 00:01:47
-# Fork: 1 of 5
-# Warmup Iteration   1: 91092.506 ops/ms
-Iteration   1: 94031.651 ops/ms
-
-# Run progress: 83.33% complete, ETA 00:01:26
-# Fork: 2 of 5
-# Warmup Iteration   1: 92122.501 ops/ms
-Iteration   1: 95148.875 ops/ms
-
-# Run progress: 87.50% complete, ETA 00:01:04
-# Fork: 3 of 5
-# Warmup Iteration   1: 90051.287 ops/ms
-Iteration   1: 96090.860 ops/ms
-
-# Run progress: 91.67% complete, ETA 00:00:43
-# Fork: 4 of 5
-# Warmup Iteration   1: 96824.209 ops/ms
-Iteration   1: 94219.751 ops/ms
-
-# Run progress: 95.83% complete, ETA 00:00:21
-# Fork: 5 of 5
-# Warmup Iteration   1: 88578.347 ops/ms
-Iteration   1: 95438.660 ops/ms
-
-
-Result "com.github.stokito.jsmallmap.MapPutBenchmarkSmallMap.testGetExistingKey":
-  94985.959 ±(99.9%) 3306.885 ops/ms [Average]
-  (min, avg, max) = (94031.651, 94985.959, 96090.860), stdev = 858.788
-  CI (99.9%): [91679.074, 98292.844] (assumes normal distribution)
-
-
-# Run complete. Total time: 00:08:38
-
-REMEMBER: The numbers below are just data. To gain reusable insights, you need to follow up on
-why the numbers are the way they are. Use profilers (see -prof, -lprof), design factorial
-experiments, perform baseline and negative tests that provide experimental control, make sure
-the benchmarking environment is safe on JVM/OS/HW level, ask for reviews from the domain experts.
-Do not assume the numbers tell you what you want them to tell.
-
-Benchmark                                    Mode  Cnt       Score      Error   Units
-MapGetBenchmarkHashMap.testGetExistingKey   thrpt    5   96545.632 ± 4223.053  ops/ms
-MapGetBenchmarkSmallMap.testGetExistingKey  thrpt    5  102397.779 ± 3472.132  ops/ms
-MapPutBenchmarkHashMap.testGetExistingKey   thrpt    5   47219.787 ±  713.935  ops/ms
-MapPutBenchmarkSmallMap.testGetExistingKey  thrpt    5   94985.959 ± 3306.885  ops/ms
+Benchmark                                               Mode   Cnt       Score      Error   Units
+MapGetBenchmarkHashMap.testGetExistingKey               thrpt    5   96545.632 ± 4223.053  ops/ms
+MapGetBenchmarkSmallMap.testGetExistingKey              thrpt    5  102397.779 ± 3472.132  ops/ms
+MapPutBenchmarkHashMap.testPutNonExistingKey            thrpt    5   47219.787 ±  713.935  ops/ms
+MapPutBenchmarkSmallMap.testPutNonExistingKey           thrpt    5   94985.959 ± 3306.885  ops/ms
 ```
 
-Get works twice faster while put is just slightly faster. Here maps was created in **new memory**.
+`get()` works twice faster while `put()` is just slightly faster. Here maps was created in **new memory**.
+
+Also due to some weird bug inside JMH when `instanceof` doesn't work the test for `putAll()` when it justs copies fields is not working properly.
+Even if other map is SmallMap it will iterate and execute `put()` for each entry and this is much havier.
+But with some hacks I got some near to real data: 
+```
+Benchmark                     Mode   Cnt      Score       Error   Units
+SmallMap.putAll() from other SimpleMap thrpt    5  98251.151 ±  4336.348  ops/ms
+SmallMap.putAll() from other HashMap   thrpt    5  89048.174 ± 74724.720  ops/ms
+```
 
 # Memory footprint
 The instance of `SmallMap` takes 56 bytes see [jol](http://openjdk.java.net/projects/code-tools/jol/) output: 

@@ -1,6 +1,5 @@
 package com.github.stokito.jsmallmap;
 
-import com.github.stokito.jsmallmap.SmallMap;
 import junit.framework.TestCase;
 
 import java.lang.reflect.Constructor;
@@ -305,8 +304,9 @@ public class MapTest extends TestCase {
     }
 
 
-    @SuppressWarnings({"unchecked"})
-/*    public void testSerializable() throws Exception {
+/*
+   @SuppressWarnings({"unchecked"})
+   public void testSerializable() throws Exception {
         // Use a non-standard load factor to more fully test serialization
         Map<String, String> map = newMapStrStr();
         map.put("a", "b");
@@ -326,13 +326,49 @@ public class MapTest extends TestCase {
 
 
     public void testPutAll() throws Exception {
-        Map<String, String> map = newMapStrStr();
-        map.put("one", "two");
-        map.put("two", "four");
-        map.put("three", "six");
-        ss_map.putAll(map);
+        Map<String, String> otherMap = newMapStrStr();
+        doTestPutAll(otherMap);
     }
 
+    public void testPutAllFromOtherMapClass() throws Exception {
+        Map<String, String> otherMap = new TreeMap<>();
+        doTestPutAll(otherMap);
+    }
+
+    public void testPutAllOverrideValue() throws Exception {
+        ss_map.put("key1", "oldVal");
+        ss_map.put("key2", "oldVal");
+        ss_map.put("key3", "oldVal");
+        ss_map.put("key4", "oldVal");
+        ss_map.put("key5", "oldVal");
+        Map<String, String> otherMap = newMapStrStr();
+        doTestPutAll(otherMap);
+    }
+
+    public void testPutAllOverrideValueFromOtherMapClass() throws Exception {
+        ss_map.put("key1", "oldVal");
+        ss_map.put("key2", "oldVal");
+        ss_map.put("key3", "oldVal");
+        ss_map.put("key4", "oldVal");
+        ss_map.put("key5", "oldVal");
+        Map<String, String> otherMap = new TreeMap<>();
+        doTestPutAll(otherMap);
+    }
+
+    private void doTestPutAll(Map<String, String> otherMap) {
+        otherMap.put("key1", "newVal");
+        otherMap.put("key2", "newVal");
+        otherMap.put("key3", "newVal");
+        otherMap.put("key4", "newVal");
+        otherMap.put("key5", "newVal");
+        ss_map.putAll(otherMap);
+        assertEquals("newVal", ss_map.get("key1"));
+        assertEquals("newVal", ss_map.get("key2"));
+        assertEquals("newVal", ss_map.get("key3"));
+        assertEquals("newVal", ss_map.get("key4"));
+        assertEquals("newVal", ss_map.get("key5"));
+        assertEquals(5, ss_map.size());
+    }
 
     @SuppressWarnings({"RedundantStringConstructorCall"})
     public void testHashCode() throws Exception {

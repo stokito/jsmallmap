@@ -59,7 +59,7 @@ public final class SmallMap<K, V> implements Map<K, V> {
             case 0:
                 return null;
             default:
-                throw new IllegalStateException("Size is wrong");
+                throw new IllegalStateException("Size is incorrect");
         }
     }
 
@@ -68,60 +68,73 @@ public final class SmallMap<K, V> implements Map<K, V> {
         assertKeyNotNull(key);
         if (newVal == null) return remove(key);
         switch (size) {
-            case 0:
-                size = 1;
-                key1 = key;
-                val1 = newVal;
-                return null;
-            case 1:
-                if (key.equals(key1)) {
-                    V oldVal = val1;
-                    val1 = newVal;
+            case 5:
+                if (key.equals(key5)) {
+                    V oldVal = val5;
+                    val5 = newVal;
                     return oldVal;
-                } else {
-                    size = 2;
-                    key2 = key;
-                    val2 = newVal;
-                    return null;
-                }
-            case 2:
-                if (key.equals(key2)) {
-                    V oldVal = val2;
-                    val2 = newVal;
-                    return oldVal;
-                } else {
-                    size = 3;
-                    key3 = key;
-                    val3 = newVal;
-                    return null;
-                }
-            case 3:
-                if (key.equals(key3)) {
-                    V oldVal = val3;
-                    val3 = newVal;
-                    return oldVal;
-                } else {
-                    size = 4;
-                    key4 = key;
-                    val4 = newVal;
-                    return null;
                 }
             case 4:
                 if (key.equals(key4)) {
                     V oldVal = val4;
                     val4 = newVal;
                     return oldVal;
-                } else {
+                }
+            case 3:
+                if (key.equals(key3)) {
+                    V oldVal = val3;
+                    val3 = newVal;
+                    return oldVal;
+                }
+            case 2:
+                if (key.equals(key2)) {
+                    V oldVal = val2;
+                    val2 = newVal;
+                    return oldVal;
+                }
+            case 1:
+                if (key.equals(key1)) {
+                    V oldVal = val1;
+                    val1 = newVal;
+                    return oldVal;
+                }
+            default:
+                appendNewEntry(key, newVal);
+                return null;
+        }
+    }
+
+    public void appendNewEntry(final K key, final V newVal) {
+        switch (size) {
+            case 0: {
+                size = 1;
+                key1 = key;
+                val1 = newVal;
+                break;
+            }
+            case 1: {
+                    size = 2;
+                    key2 = key;
+                    val2 = newVal;
+                break;
+                }
+            case 2: {
+                    size = 3;
+                    key3 = key;
+                    val3 = newVal;
+                break;
+                }
+            case 3: {
+                    size = 4;
+                    key4 = key;
+                    val4 = newVal;
+                break;
+                }
+            case 4: {
                     size = 5;
                     key5 = key;
                     val5 = newVal;
-                    return null;
-                }
-            case 5:
-                if (key.equals(key5)) {
-                    V oldVal = val5;
-                    val5 = newVal;
-                    return oldVal;
+                break;
                 }
             default:
                 throw new IndexOutOfBoundsException("Too many entries");
@@ -145,7 +158,7 @@ public final class SmallMap<K, V> implements Map<K, V> {
             case 0:
                 return null; // map is empty
             default:
-                throw new IllegalStateException("Size is wrong");
+                throw new IllegalStateException("Size is incorrect");
         }
     }
 

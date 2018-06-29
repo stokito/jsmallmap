@@ -113,29 +113,29 @@ public final class SmallMap<K, V> implements Map<K, V> {
                 break;
             }
             case 1: {
-                    size = 2;
-                    key2 = key;
-                    val2 = newVal;
+                size = 2;
+                key2 = key;
+                val2 = newVal;
                 break;
-                }
+            }
             case 2: {
-                    size = 3;
-                    key3 = key;
-                    val3 = newVal;
+                size = 3;
+                key3 = key;
+                val3 = newVal;
                 break;
-                }
+            }
             case 3: {
-                    size = 4;
-                    key4 = key;
-                    val4 = newVal;
+                size = 4;
+                key4 = key;
+                val4 = newVal;
                 break;
-                }
+            }
             case 4: {
-                    size = 5;
-                    key5 = key;
-                    val5 = newVal;
+                size = 5;
+                key5 = key;
+                val5 = newVal;
                 break;
-                }
+            }
             default:
                 throw new IndexOutOfBoundsException("Too many entries");
         }

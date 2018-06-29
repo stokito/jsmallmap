@@ -11,14 +11,14 @@ import java.util.concurrent.TimeUnit;
 
 @State(Scope.Thread)
 public class MapGetBenchmarkHashMap {
-    private HashMap<Long, Long> hmap = new HashMap<Long, Long>();
+    private HashMap<Long, Long> map = new HashMap<Long, Long>();
     private long key;
 
     @Setup(Level.Iteration)
     public void setup() {
         key = 0;
         for (long i = 0; i < 5; i++) {
-            hmap.put(i, i);
+            map.put(i, i);
         }
     }
 
@@ -27,7 +27,7 @@ public class MapGetBenchmarkHashMap {
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     public Long testGetExistingKey() throws InterruptedException {
         if (key >= 5) key = 0;
-        return hmap.get(key++);
+        return map.get(key++);
     }
 
 

@@ -11,18 +11,18 @@ import java.util.concurrent.TimeUnit;
 
 @State(Scope.Thread)
 public class MapPutBenchmarkHashMap {
-    private HashMap<Long, Long> hmap = new HashMap<Long, Long>();
+    private HashMap<Long, Long> map = new HashMap<Long, Long>();
     private long key;
 
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
-    public Long testGetExistingKey() throws InterruptedException {
+    public Long testPutNonExistingKey() throws InterruptedException {
         if (key >= 5) {
             key = 0;
-            hmap.clear();
+            map.clear();
         }
-        Long oldVal = hmap.put(key, key);
+        Long oldVal = map.put(key, key);
         key++;
         return oldVal;
     }

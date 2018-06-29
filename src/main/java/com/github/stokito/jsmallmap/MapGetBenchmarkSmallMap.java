@@ -10,15 +10,14 @@ import java.util.concurrent.TimeUnit;
 
 @State(Scope.Thread)
 public class MapGetBenchmarkSmallMap {
-    private SmallMap<Long, Long> hmap = new SmallMap<>();
+    private SmallMap<Long, Long> map = new SmallMap<>();
     private long key;
 
     @Setup(Level.Iteration)
     public void setup() {
         key = 0;
-        hmap.clear();
         for (long i = 0; i < 5; i++) {
-            hmap.put(i, i);
+            map.put(i, i);
         }
     }
 
@@ -27,7 +26,7 @@ public class MapGetBenchmarkSmallMap {
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     public Long testGetExistingKey() throws InterruptedException {
         if (key >= 5) key = 0;
-        return hmap.get(key++);
+        return map.get(key++);
     }
 
 

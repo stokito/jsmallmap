@@ -150,23 +150,25 @@ public final class SmallMap<K, V> implements Map<K, V> {
     }
 
     @Override
-    public void putAll(Map<? extends K, ? extends V> m) {
-        assertKeyNotNull(m);
-        if (m instanceof SmallMap) {
-            SmallMap<? extends K, ? extends V> otherSmallmap = (SmallMap<? extends K, ? extends V>) m;
-            this.size = otherSmallmap.size;
-            this.key1 = otherSmallmap.key1;
-            this.val1 = otherSmallmap.val1;
-            this.key2 = otherSmallmap.key2;
-            this.val2 = otherSmallmap.val2;
-            this.key3 = otherSmallmap.key3;
-            this.val3 = otherSmallmap.val3;
-            this.key4 = otherSmallmap.key4;
-            this.val4 = otherSmallmap.val4;
-            this.key5 = otherSmallmap.key5;
-            this.val5 = otherSmallmap.val5;
+    public void putAll(Map<? extends K, ? extends V> otherMap) {
+        if (otherMap == null) {
+            throw new NullPointerException("otherMap shouldn't be null");
+        }
+        if (otherMap instanceof SmallMap) {
+            SmallMap<? extends K, ? extends V> otherSmallMap = (SmallMap<? extends K, ? extends V>) otherMap;
+            this.key1 = otherSmallMap.key1;
+            this.val1 = otherSmallMap.val1;
+            this.key2 = otherSmallMap.key2;
+            this.val2 = otherSmallMap.val2;
+            this.key3 = otherSmallMap.key3;
+            this.val3 = otherSmallMap.val3;
+            this.key4 = otherSmallMap.key4;
+            this.val4 = otherSmallMap.val4;
+            this.key5 = otherSmallMap.key5;
+            this.val5 = otherSmallMap.val5;
+            this.size = otherSmallMap.size;
         } else {
-            for (Entry<? extends K, ? extends V> entry: m.entrySet()) {
+            for (Entry<? extends K, ? extends V> entry: otherMap.entrySet()) {
                 put(entry.getKey(), entry.getValue());
             }
         }

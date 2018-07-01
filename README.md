@@ -47,11 +47,59 @@ And you are partially right: we do have gibibytes of RAM but we have only about 
     L3 Cache:                      6144K
 
 To understand how this is very important see [Latency Numbers Every Programmer Should Know](https://gist.github.com/jboner/2841832).
-Today enterprise applications contains thousands of instances of hash map and it becomes a problem because it takes more time to collect a garbage. 
-So a main idea is to make so small map so it can fit into CPU cache and all it's entries are tied together to be [prefetched](https://en.wikipedia.org/wiki/Cache_prefetching).
+But what is more important is that data is transferred between memory and CPU cache in blocks of fixed size, called **cache lines** with [typical size 64 bytes](https://www.7-cpu.com/cpu/Haswell.html).
+When you try to fetch one byte actually it will also fetch next 63 bytes. This called [Cache Prefetching](https://en.wikipedia.org/wiki/Cache_prefetching) and has a big impact on performance.
+If the object is shared between threads this can cause a [False Sharing problem](https://robsjava.blogspot.com/2014/03/what-is-false-sharing.html). 
+What is also we had to keep in mind that today enterprise applications contains thousands of instances of hash map and it becomes a problem because it takes more time to collect a garbage with stop the world pauses. 
+So a main idea is to make so small map so it can fit into CPU cache and all it's entries are tied together to be prefetched.
 I expect that this can be especially useful in conjunction with [compact objects](http://objectlayout.github.io/ObjectLayout/) that are still not added to JDK :(
 
 # Design principles
+### Why only 5 entries?
+We have two main usages:
+1. As temporary map to pass or return few values to/from a method i.e. in eden memory.
+2. As row in a container (list) to represent few fields during processing or .
+
+#### To fit into cache line
+In both cases the map should be smaller that 64 bytes i.e. 64 - 12 bytes for an object header = 52 bytes.
+Both key and value are object's references by 4 bytes (on x64 without reference compression 8 bytes).
+52 / (4 bytes per key + 4 bytes per value) = 6 entries + 4 free bytes.
+So we can use up to 6 entries to fit into the requirement.
+In fact, this is the only one clear requirement/wish.
+The HashMap with one element takes already 120 bytes so if we double the size to 128 (14 entries) it will be ok in comparision with HashMap.
+But on a big count of fields linear search can work slower.
+
+
+#### To use less memory
+This is not so important when using the map as temp object in method return or param but it may be expensive when map is used as row container.
+Imagine you have 1000 map instances then each new entry ads (4 bytes of key + 4 bytes of value) * 1000 = &000 bytes.
+
+    1 entry   * 1000 maps = &000
+    2 entries * 1000 maps = 16000
+    3 entries * 1000 maps = 24000
+    4 entries * 1000 maps = 32000
+    5 entries * 1000 maps = 40000
+    6 entries * 1000 maps = 48000
+
+The main problem is that you'll reserve all 48 bytes for 6 entries even if you use only 3 entries with 24 bytes.
+This can me solved by creation of another classes with specific arity like `Map3`, `Map4`, `Map5`, `Map6` or even `Map14`.   
+
+#### To be fast
+The map uses a simplest linear search. For small entries count it's even faster then search by hash. 
+
+The methods `put()` and `get()` should be as fast as they can.
+The method `put()` depends on on entries count linearly.
+The method `get()` also depends on on entries count linearly but if entry by key is not present it will make full scan.
+Each new entry makes `putAll()` working longer.      
+
+
+But here is another important metric: methods size. If method less than 35 bytecodes it will be inlined.
+If method less that 325 bytecodes and is hot then it will be also inlined in runtime.
+Currently method get() is 132 and put() is 233 which is near to limit 235.
+Method `size()` is 64 and `isEmpty()` is 13.
+
+
+### Most frequntly methods
 Here is some trade-off which method should be fast and which can be slow. Since the class will be used as tuple I chose the following priority: 
 1. `put()` and `get()` should be fastest methods because are used the most: this is achieved.
 2. `putAll()` and copy constructor: current implementation can be faster
@@ -146,7 +194,12 @@ From heap dump the size of instance SmallMap<Integer,Integer> is 97.
 The empty HashMap is smaller and consumes only 48 bytes but with five values it becomes much bigger.
 From heap dump the size is 64 and retained: 372 i.e. more in 3 times than SmallMap.
 
-MapN retained 228.
+Empty MapN 48 bytes.
+MapN 1 entry 80 bytes. 
+MapN 2 entries 112 bytes. 
+MapN 3 entries 144 bytes. 
+
+MapN 5 entries retained 228.
 2000000
 Spent time: 706.55321ms
 Consumed mem: 277506.0kb  
@@ -173,6 +226,7 @@ assert goods.size() == 2; // still no dups
 
   
 # Related works and discussions
+* JDK9 has internal class `MapN` which uses an array where keys and values are pairwised. Also it lookups a value by hash. to  I copied the class into sources so we can benchmark it. 
 * https://www.nayuki.io/page/compact-hash-map-java
 * https://github.com/OpenHFT/SmoothieMap
 * See [Which implementation of Map<K,V> should I use if my map needs to be small more than fast?](https://stackoverflow.com/questions/8835928/which-implementation-of-mapk-v-should-i-use-if-my-map-needs-to-be-small-more-t)

@@ -92,7 +92,7 @@ public final class SmallMap<K, V> implements Map<K, V> {
 
     @Override
     public V put(final K key, final V newVal) {
-        assertKeyNotNull(key);
+        requireNonNull(key);
         if (newVal == null) return remove(key);
         switch (size) {
             case 5:
@@ -170,7 +170,7 @@ public final class SmallMap<K, V> implements Map<K, V> {
 
     @Override
     public V remove(Object key) {
-        assertKeyNotNull(key);
+        requireNonNull(key);
         switch (size) {
             case 5:
                 if (key.equals(key5)) return removeByIdx(4);
@@ -340,12 +340,6 @@ public final class SmallMap<K, V> implements Map<K, V> {
                 return new ValsEntry(key5, val5);
             default:
                 throw new IndexOutOfBoundsException();
-        }
-    }
-
-    private void assertKeyNotNull(Object key) {
-        if (key == null) {
-            throw new NullPointerException("Key shouldn't be null");
         }
     }
 

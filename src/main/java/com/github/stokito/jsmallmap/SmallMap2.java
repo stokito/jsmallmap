@@ -180,7 +180,8 @@ public final class SmallMap2<K, V> implements Map<K, V> {
             val5 = newVal;
             return oldVal;
         }
-        throw new IndexOutOfBoundsException("Too many entries");
+        throw new IndexOutOfBoundsException();
+//        throw new IndexOutOfBoundsException("Too many entries");
     }
 
     @Override
@@ -223,7 +224,8 @@ public final class SmallMap2<K, V> implements Map<K, V> {
     @Override
     public void putAll(Map<? extends K, ? extends V> otherMap) {
         if (otherMap == null) {
-            throw new NullPointerException("otherMap shouldn't be null");
+//            throw new NullPointerException("otherMap shouldn't be null");
+            throw new NullPointerException();
         }
         if (otherMap instanceof SmallMap2) {
             SmallMap2<? extends K, ? extends V> otherSmallMap = (SmallMap2<? extends K, ? extends V>) otherMap;
@@ -322,8 +324,11 @@ public final class SmallMap2<K, V> implements Map<K, V> {
                 val3 = val4;
             case 3:
                 val4 = val5;
-            case 4:
+            default:
+//            case 4:
                 val5 = null;
+//            default:
+//                throw new IndexOutOfBoundsException();
         }
     }
 
@@ -337,10 +342,11 @@ public final class SmallMap2<K, V> implements Map<K, V> {
                 return val3;
             case 3:
                 return val4;
-            case 4:
-                return val5;
             default:
-                throw new IndexOutOfBoundsException();
+//            case 4:
+                return val5;
+//            default:
+//                throw new IndexOutOfBoundsException();
         }
     }
 
@@ -354,27 +360,29 @@ public final class SmallMap2<K, V> implements Map<K, V> {
                 return key3;
             case 3:
                 return key4;
-            case 4:
-                return key5;
             default:
-                throw new IndexOutOfBoundsException();
+//            case 4:
+                return key5;
+//            default:
+//                throw new IndexOutOfBoundsException();
         }
     }
 
-    public ValsEntry<K, V> entryByIdx(byte idx) {
+    public KeyValueHolder<K, V> entryByIdx(byte idx) {
         switch (idx) {
             case 0:
-                return new ValsEntry<>(key1, val1);
+                return new KeyValueHolder<>(key1, val1);
             case 1:
-                return new ValsEntry<>(key2, val2);
+                return new KeyValueHolder<>(key2, val2);
             case 2:
-                return new ValsEntry<>(key3, val3);
+                return new KeyValueHolder<>(key3, val3);
             case 3:
-                return new ValsEntry<>(key4, val4);
-            case 4:
-                return new ValsEntry<>(key5, val5);
+                return new KeyValueHolder<>(key4, val4);
+//            case 4:
             default:
-                throw new IndexOutOfBoundsException();
+                return new KeyValueHolder<>(key5, val5);
+//            default:
+//                throw new IndexOutOfBoundsException();
         }
     }
 
@@ -456,33 +464,4 @@ public final class SmallMap2<K, V> implements Map<K, V> {
         }
     }
 
-    final static class ValsEntry<K, V> implements Entry<K, V> {
-        private K key;
-        private V value;
-
-        ValsEntry(K key, V value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        @Override
-        public K getKey() {
-            return key;
-        }
-
-        @Override
-        public V getValue() {
-            return value;
-        }
-
-        @Override
-        public V setValue(V newValue) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public final String toString() {
-            return key + "=" + value;
-        }
-    }
 }

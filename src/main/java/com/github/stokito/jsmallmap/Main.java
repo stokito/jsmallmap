@@ -1,21 +1,27 @@
 package com.github.stokito.jsmallmap;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 /*
 hash map
 2000000
-Spent time: 3249.609999ms
-Consumed mem: 503_633.734375kb
+Spent time: 550.176251ms
+Consumed mem: 503807.953125kb
 
 simple map
 2000000
-Spent time: 206.163396ms
-Consumed mem: 125_952.5078125kb
+Spent time: 171.483662ms
+Consumed mem: 115456.5703125kb
 
-simple map consumed 4 less memory and worked 16 times fast
+small map2
+2000000
+Spent time: 142.765775ms
+Consumed mem: 115456.5703125kb
+
+small map2 faster in 3.853698486 times and 4.363614403 less memory
 */
 public class Main {
     private static final int CAPACITY = 2000000;
@@ -36,7 +42,9 @@ public class Main {
         long start = System.nanoTime();
         for (int i = 0; i < CAPACITY; i++) {
 //            HashMap<Integer, Integer> map = new HashMap<>(5, 1.0f);
-            SmallMap<Integer, Integer> map = new SmallMap<>();
+//            SmallMap<Integer, Integer> map = new SmallMap<>();
+            SmallMap2<Integer, Integer> map = new SmallMap2<>();
+//            Map<Integer, Integer> map = Map.of(I1, I1, I2, I2, I3, I3, I4, I4, I5, I5);
             holder.add(map);
             Objects.nonNull(map.put(I1, I1));
             Objects.nonNull(map.put(I2, I2));

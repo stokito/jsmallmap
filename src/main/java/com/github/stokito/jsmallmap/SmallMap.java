@@ -2,6 +2,8 @@ package com.github.stokito.jsmallmap;
 
 import java.util.*;
 
+import static java.util.Objects.requireNonNull;
+
 public final class SmallMap<K, V> implements Map<K, V> {
     private byte size;
     private K key1;
@@ -44,7 +46,7 @@ public final class SmallMap<K, V> implements Map<K, V> {
 
     @Override
     public V get(Object key) {
-        assertKeyNotNull(key);
+        requireNonNull(key);
         switch (size) {
             case 5:
                 if (key.equals(key5)) return val5;
@@ -61,6 +63,31 @@ public final class SmallMap<K, V> implements Map<K, V> {
             default:
                 throw new IllegalStateException("Size is incorrect");
         }
+    }
+
+    public V getIfElseAsceding(Object key) {
+        requireNonNull(key);
+        if (key.equals(key1)) return val1;
+        if (key.equals(key2)) return val2;
+        if (key.equals(key3)) return val3;
+        if (key.equals(key4)) return val4;
+        if (key.equals(key5)) return val5;
+        return null;
+    }
+
+    public V getIfNull(Object key) {
+        requireNonNull(key);
+        if (key1 == null) return null;
+        if (key.equals(key1)) return val1;
+        if (key2 == null) return null;
+        if (key.equals(key2)) return val2;
+        if (key3 == null) return null;
+        if (key.equals(key3)) return val3;
+        if (key4 == null) return null;
+        if (key.equals(key4)) return val4;
+        if (key5 == null) return null;
+        if (key.equals(key5)) return val5;
+        return null;
     }
 
     @Override

@@ -48,7 +48,7 @@ And you are partially right: we do have gibibytes of RAM but we have only about 
 
 To understand how this is very important see [Latency Numbers Every Programmer Should Know](https://gist.github.com/jboner/2841832).
 Today enterprise applications contains thousands of instances of hash map and it becomes a problem because it takes more time to collect a garbage. 
-So a main idea is to make so small map so it can fit into CPU cache and all it's entries are tied together to be prefetched.
+So a main idea is to make so small map so it can fit into CPU cache and all it's entries are tied together to be [prefetched](https://en.wikipedia.org/wiki/Cache_prefetching).
 I expect that this can be especially useful in conjunction with [compact objects](http://objectlayout.github.io/ObjectLayout/) that are still not added to JDK :(
 
 # Design principles
@@ -100,10 +100,10 @@ MapPutBenchmarkHashMap.testPutNonExistingKey            thrpt    5   47219.787 Â
 MapPutBenchmarkSmallMap.testPutNonExistingKey           thrpt    5   94985.959 Â± 3306.885  ops/ms
 ```
 
-`get()` works twice faster while `put()` is just slightly faster. Here maps was created in **new memory**.
+`get()` works twice faster while `put()` is just slightly faster. Here maps was created in **eden (new) memory**.
 
 Also due to some weird bug inside JMH when `instanceof` doesn't work the test for `putAll()` when it justs copies fields is not working properly.
-Even if other map is SmallMap it will iterate and execute `put()` for each entry and this is much havier.
+Even if other map is SmallMap it will iterate and execute `put()` for each entry and this is much heavier.
 But with some hacks I got some near to real data: 
 ```
 Benchmark                     Mode   Cnt      Score       Error   Units
@@ -144,7 +144,12 @@ Note that `byte size` was padded to int but I still wan't to use byte just for f
 From heap dump the size of instance SmallMap<Integer,Integer> is 97. 
  
 The empty HashMap is smaller and consumes only 48 bytes but with five values it becomes much bigger.
-From heap dump the size is 64 and retained: 372 i.e. more in 3 times than SmallMap.  
+From heap dump the size is 64 and retained: 372 i.e. more in 3 times than SmallMap.
+
+MapN retained 228.
+2000000
+Spent time: 706.55321ms
+Consumed mem: 277506.0kb  
  
 # Vals: simple and universal collection
 But what is more interesting for me is to try to create an universal class which can be used as Tuple as Map, as List and Set and call it Vals.

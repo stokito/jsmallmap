@@ -16,7 +16,7 @@ public class MapPutBenchmarkSmallMap {
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
-    public Long testPutNonExistingKeyKey() throws InterruptedException {
+    public Long testPutNonExistingKeyKey() {
         if (key >= 5) {
             key = 0;
             map.clear();

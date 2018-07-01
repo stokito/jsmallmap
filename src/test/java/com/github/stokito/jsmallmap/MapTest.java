@@ -15,7 +15,8 @@ public class MapTest extends TestCase {
     protected int count;
 
     //    private Class<? extends Map> mapClass = HashMap.class;
-    private Class<? extends Map> mapClass = SmallMap.class;
+//    private Class<? extends Map> mapClass = SmallMap.class;
+    private Class<? extends Map> mapClass = SmallMap2.class;
 
     public MapTest(String name) {
         super(name);

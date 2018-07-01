@@ -17,7 +17,7 @@ public class MapPutBenchmarkHashMap {
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
-    public Long testPutNonExistingKey() throws InterruptedException {
+    public Long testPutNonExistingKey() {
         if (key >= 5) {
             key = 0;
             map.clear();
